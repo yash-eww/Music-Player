@@ -1,21 +1,23 @@
 import React from "react";
 
 type Props = {
-  img: string;
-  title: string;
-  desc: string;
+  img?: string;
+  title?: string;
+  desc?: string;
+  index: number;
 };
 
-const NewReleaseCard = ({ img, title, desc }: Props) => {
+const NewReleaseCard = ({ img, title, desc, index }: Props) => {
   return (
-    <div className="cursor-pointer">
-      <div className="relative rounded-2xl max-w-[230px] overflow-hidden">
-        <img
-          src={img}
-          alt={img}
-          className="rounded-2xl md:w-full duration-1000 hover:transform hover:scale-150 transform-origin-center"
-        />
-        {/* <div className="absolute flex justify-center items-center top-0 rounded-2xl h-full bg-black opacity-0 duration-300 hover:opacity-55 max-w-[230px] md:w-full">
+    index < 13 && (
+      <div className="cursor-pointer">
+        <div className="relative rounded-2xl max-w-[230px] overflow-hidden">
+          <img
+            src={img}
+            alt={`cover${index}`}
+            className="rounded-2xl md:w-full duration-1000 hover:transform hover:scale-150 transform-origin-center"
+          />
+          {/* <div className="absolute flex justify-center items-center top-0 rounded-2xl h-full bg-black opacity-0 duration-300 hover:opacity-55 max-w-[230px] md:w-full">
           <div className="bg-black w-10 h-10">
             <svg
               fill="white"
@@ -40,10 +42,11 @@ const NewReleaseCard = ({ img, title, desc }: Props) => {
             </svg>
           </div>
         </div> */}
+        </div>
+        <h1 className="mt-1 max-w-[230px] text-center">{title}</h1>
+        <p className="text-gray-300 text-sm">{desc}</p>
       </div>
-      <h1 className="mt-1">{title}</h1>
-      <p className="text-gray-300 text-sm">{desc}</p>
-    </div>
+    )
   );
 };
 
