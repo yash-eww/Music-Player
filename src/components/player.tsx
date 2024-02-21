@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import SkipNextRoundedIcon from "@mui/icons-material/SkipNextRounded";
 import SkipPreviousRoundedIcon from "@mui/icons-material/SkipPreviousRounded";
+import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { ProgressBarComponent } from "@syncfusion/ej2-react-progressbar";
 import ProgressBar from "./progressBar";
@@ -11,77 +12,55 @@ type Props = {};
 const Player = (props: Props) => {
   const { song, playSong } = useAudio();
   const [count, setCount] = useState(0);
-  // const [audio] = useState(new Audio(playSong?.url));
-  const audio = new Audio(playSong?.url);
-  const [isPlaying, setIsPlaying] = useState(false);
-  // const audioRef = useRef<any>(new Audio());
-
-  // useEffect(() => {
-  //   const handlePlay = async () => {
-  //     console.log(playSong);
-  //     try {
-  //       if (isPlaying) {
-  //         audioRef.current.src = playSong?.url;
-  //         console.log(audioRef, "audioRef");
-
-  //         const loadeddata = await audioRef.current.load(); // Load the new audio source
-  //         console.log(loadeddata);
-  //         await audioRef.current.play(); // Play after loading
-  //         setCount(0);
-  //         setIsPlaying(true);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error playing audio:", error);
-  //     }
-  //   };
-  //   handlePlay();
-  // }, [playSong, isPlaying]);
-
-  console.log(audio, "audio");
+  const [isPlaying, setIsPlaying] = useState(true);
+  const audioElement = useRef(null);
 
   useEffect(() => {
-    isPlaying ? audio.play() : audio.pause();
-  }, [isPlaying]);
+    if (audioElement.current) {
+      audioElement.current.play();
+      setCount(0);
+    }
+  }, [playSong && playSong.preview_url]);
 
-  // useEffect(() => {
-  //   // Set up event listener for when the audio ends
-  //   const handleEnded = () => setIsPlaying(false);
+  useEffect(() => {
+    let timer: any;
 
-  //   audio.addEventListener("ended", handleEnded);
+    if (isPlaying) {
+      timer = setInterval(() => {
+        if (playSong) {
+          if (count < playSong?.duration_ms) {
+            setCount((count) => count + 1);
+          } else {
+            setCount(0);
+          }
+        }
+      }, 1000);
+    }
 
-  //   return () => {
-  //     // Clean up event listener on component unmount
-  //     audio.removeEventListener("ended", handleEnded);
-  //   };
-  // }, [audio]);
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [count, playSong?.duration_ms, isPlaying]);
 
-  // useEffect(() => {
-  //   let timer: any;
-
-  //   if (isPlaying) {
-  //     timer = setInterval(() => {
-  //       if (playSong) {
-  //         if (count < playSong?.duration) {
-  //           setCount((count) => count + 1);
-  //         } else {
-  //           setCount(0);
-  //         }
-  //       }
-  //     }, 1000);
-  //   }
-
-  //   return () => {
-  //     if (timer) {
-  //       clearInterval(timer);
-  //     }
-  //   };
-  // }, [count, playSong?.duration, isPlaying]);
-
-  const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  const togglePlayPause = () => {
+    if (audioElement.current) {
+      if (isPlaying) {
+        audioElement.current.pause();
+      } else {
+        audioElement.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
+
+  function convertMsToMinutes(duration_ms: number) {
+    const totalSeconds = duration_ms / 1000;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  }
 
   return (
     <div>
@@ -113,15 +92,30 @@ const Player = (props: Props) => {
               }}
             />
           </button>
-          <button onClick={() => setIsPlaying(!isPlaying)}>
-            <PlayArrowRoundedIcon
-              htmlColor="white"
-              sx={{
-                width: "40px",
-                height: "40px",
-                ":hover": { color: "green" },
-              }}
-            />
+          <audio
+            ref={audioElement}
+            src={playSong && playSong.preview_url}
+          ></audio>
+          <button onClick={togglePlayPause}>
+            {isPlaying ? (
+              <PauseIcon
+                htmlColor="white"
+                sx={{
+                  width: "40px",
+                  height: "40px",
+                  ":hover": { color: "green" },
+                }}
+              />
+            ) : (
+              <PlayArrowRoundedIcon
+                htmlColor="white"
+                sx={{
+                  width: "40px",
+                  height: "40px",
+                  ":hover": { color: "green" },
+                }}
+              />
+            )}
           </button>
           <button>
             <SkipNextRoundedIcon
@@ -139,7 +133,8 @@ const Player = (props: Props) => {
           {playSong && (
             <p className="text-white text-[14px]">
               {" "}
-              {formatTime(count)}/{formatTime(playSong?.duration)}
+              {convertMsToMinutes(count)}/
+              {convertMsToMinutes(playSong?.duration_ms)}
             </p>
           )}
         </div>

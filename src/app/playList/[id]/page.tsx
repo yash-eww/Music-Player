@@ -8,50 +8,80 @@ import React, { useEffect, useState } from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 import SelectPlayList from "@/components/selectPlayList/selectPlayList";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import axios from "axios";
 import UseToast from "@/hook/useToast";
+import RemoveModal from "@/components/modal/RemoveModal";
 
 type Props = {};
 
 const Page = ({ params }: { params: { id: string } }) => {
   const { setSong, song, setPlaySong, setIsLoading } = useAudio();
-  const { displayPlayList, setDisplayPlayList } = usePlayList();
-  const [open, setOpen] = useState(false);
-  const [trackURI, setTrackURI] = useState();
+  const [cover, setCover] = useState();
+  const [open, setOpen] = React.useState(false);
 
-  useEffect(() => {
-    const fetchAlbum = async () => {
-      const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
-      try {
-        const res = await fetch(
-          `https://api.spotify.com/v1/albums?ids=${params.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
-        const data = await res.json();
-        setSong(data.albums);
-        // setAlbum(data);
-        // const currSong = data.songs[0];
-        // const songInfo = {
-        //   id: currSong.id,
-        //   name: currSong.name.split("(")[0],
-        //   artists: currSong.primaryArtists,
-        //   audioUrl: currSong.downloadUrl[4].link,
-        //   image: currSong.image[2].link,
-        //   duration: currSong.duration,
-        // };
-        // dispatch(setCurrentSong(songInfo));
+  const [base64Image, setBase64Image] = useState("");
 
-        // setLoading(false);
-      } catch (error) {
-        // console.error(error);
-        // setLoading(false);
-      }
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setBase64Image(reader.result);
     };
-    fetchAlbum();
+    reader.readAsDataURL(file);
+  };
+
+  const uploadImage = async () => {
+    try {
+      const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+      const response = await axios({
+        method: "PUT",
+        url: `https://api.spotify.com/v1/playlists/${params.id}/images`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "image/jpeg", // or 'image/png' depending on your image format
+        },
+        data: base64Image, // remove the 'data:image/jpeg;base64,' prefix
+      });
+      console.log("Image uploaded successfully:", response.data);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const GetPlayListById = async () => {
+    const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+    try {
+      const res = await fetch(
+        `https://api.spotify.com/v1/playlists/${params.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data) {
+        setCover(data.images[0]?.url);
+        setSong(data);
+      }
+    } catch (error) {
+      // console.error(error);
+      // setLoading(false);
+    }
+  };
+  useEffect(() => {
+    GetPlayListById();
   }, [params.id]);
 
   const fetchSingleSong = async (id: number) => {
@@ -84,46 +114,28 @@ const Page = ({ params }: { params: { id: string } }) => {
       // setLoading(false);
     }
   };
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
 
-      const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
-      // console.log(accessToken);
-      const res = await fetch(
-        `https://api.spotify.com/v1/users/31jcuzwzm3h6wcsbfkqbaajhcv5m/playlists`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      const data = await res.json();
-      setDisplayPlayList(data.items);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      // setLoading(false);
-    }
-  };
-  async function createPlaylist(PlayListId: string) {
+  async function RemoveSongFromPlayList(uri: string, snapshot_id: string) {
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        `https://api.spotify.com/v1/playlists/${PlayListId}/tracks`,
-        {
-          uris: [trackURI],
-          position: 0,
+      const response = await axios({
+        method: "delete",
+        url: `https://api.spotify.com/v1/playlists/${params.id}/tracks`,
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      UseToast("Song Added", "success");
-      fetchData();
+        data: {
+          tracks: [
+            {
+              uri: uri,
+            },
+          ],
+          snapshot_id: snapshot_id,
+        },
+      });
+      UseToast("Removed", "success");
+      GetPlayListById();
       setIsLoading(false);
 
       return response.data;
@@ -133,25 +145,31 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
   }
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   return (
     <>
       <div>
         <DashBoard>
           <div className="p-10 pt-32 bg-[#16151A] text-white h-screen">
             <h1 className="text-[32px] pl-4 font-semibold">
-              {song && song[0]?.name}
+              {song && song?.name}
             </h1>
             <div className="border border-1 border-[#515053] mt-10 rounded-2xl flex h-[370px]">
               <div className="p-5 max-w-[300px]">
-                <img
-                  src={song && song[0]?.images[0]?.url}
-                  alt="as"
-                  className=" rounded-2xl"
-                />
+                <div>
+                  <input type="file" onChange={handleFileInputChange} />
+                  {base64Image && (
+                    <div>
+                      <h2>Uploaded Image:</h2>
+                      <img
+                        src={base64Image}
+                        alt="Uploaded"
+                        style={{ maxWidth: "100%" }}
+                      />
+                    </div>
+                  )}
+                  <button onClick={uploadImage}>Upload Image</button>
+                </div>
+                {cover && <img src={cover} alt="as" className=" rounded-2xl" />}
                 <div className="flex justify-center mt-3">
                   <button className="bg-[#25A56A] px-10 py-3 w-full rounded-2xl">
                     BUY ALBUM - $20
@@ -160,12 +178,12 @@ const Page = ({ params }: { params: { id: string } }) => {
               </div>
               <div className="flex flex-col w-full overflow-y-scroll">
                 {song &&
-                  song[0]?.tracks?.items?.map((x: any, i: number) => (
+                  song.tracks.items.map((x: any, i: number) => (
                     <div className="flex p-5 justify-between w-full h-fit">
                       <div
                         className="flex gap-2 cursor-pointer"
                         onClick={() => {
-                          fetchSingleSong(x?.id);
+                          fetchSingleSong(x.track.id);
                         }}
                       >
                         {" "}
@@ -185,10 +203,10 @@ const Page = ({ params }: { params: { id: string } }) => {
                         </svg>
                         <div>
                           <h1>
-                            {i + 1}. {x.name}
+                            {i + 1}. {x.track.name}
                           </h1>
                           <div className="flex">
-                            {x.artists.map((art: any, i: number) => (
+                            {/* {x.artists.map((art: any, i: number) => (
                               <div className="flex">
                                 <p className="text-[#bdbac2]">{art?.name}</p>
                                 {x?.artists[i - 1] ? (
@@ -197,19 +215,19 @@ const Page = ({ params }: { params: { id: string } }) => {
                                   <h1 className="px-1">&</h1>
                                 )}
                               </div>
-                            ))}
+                            ))} */}
                           </div>
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
-                            setTrackURI(x.uri);
-                            setOpen(true);
+                            handleClickOpen();
+                            // console.log(x.track.uri, song.snapshot_id);
                           }}
                           className="bg-[#192B26] w-8 h-8 rounded-lg"
                         >
-                          <AddRoundedIcon
+                          <RemoveCircleIcon
                             htmlColor="#249E66"
                             sx={{
                               width: "20px",
@@ -218,12 +236,15 @@ const Page = ({ params }: { params: { id: string } }) => {
                             }}
                           />
                         </button>
-                        <SelectPlayList
-                          handleClose={() => setOpen(false)}
+                        <RemoveModal
                           open={open}
-                          List={displayPlayList ?? []}
-                          handleSong={(id) => {
-                            createPlaylist(id);
+                          handleClose={handleClose}
+                          handleRemoved={() => {
+                            RemoveSongFromPlayList(
+                              x.track.uri,
+                              song.snapshot_id
+                            );
+                            handleClose();
                           }}
                         />
                         <button className="bg-[#261E36] w-8 h-8 rounded-lg">

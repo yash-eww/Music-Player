@@ -5,15 +5,25 @@ import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined
 import MicNoneOutlinedIcon from "@mui/icons-material/MicNoneOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import QueueIcon from "@mui/icons-material/Queue";
 import SearchInput from "./search";
 import Link from "next/link";
 import Player from "./player";
+import { useState } from "react";
+import { useAudio } from "@/store/music";
+import { Avatar } from "@mui/material";
+import Loader from "./Loader/loader";
 
 const sideBar = [
   {
     svg: <HomeOutlinedIcon htmlColor="#C0BDBB" />,
     name: "Home",
     url: "/dashboard",
+  },
+  {
+    svg: <QueueIcon htmlColor="#C0BDBB" />,
+    name: "PlayList",
+    url: "/playList",
   },
   {
     svg: <PeopleAltOutlinedIcon htmlColor="#C0BDBB" />,
@@ -70,6 +80,35 @@ export default function Sidebar({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const getSearch = localStorage.getItem("search");
+  const [searchQuery, setSearchQuery] = useState(getSearch ?? "");
+  const { setAlbums, playSong, isLoading } = useAudio();
+  const fetchData = async () => {
+    try {
+      const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+      // console.log(accessToken);
+      const res = await fetch(
+        `https://api.spotify.com/v1/search?q=${searchQuery}&type=album`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      const data = await res.json();
+      // console.log(res.json(), "resres");
+      // const { items } = await res.json();
+      // console.log(data, "data");
+      setAlbums(data.albums.items);
+      localStorage.setItem("album", JSON.stringify(data.albums.items));
+      // console.log(data, "items");
+      // setTrending(data.trending.albums);
+      // setLoading(false);
+    } catch (error) {
+      console.error(error);
+      // setLoading(false);
+    }
+  };
   return (
     <div>
       <nav className="fixed top-0 z-50 w-full bg-[#16151A] border-b border-[#8d8989]  ">
@@ -123,8 +162,12 @@ export default function Sidebar({
                 </ul>
                 <SearchInput
                   placeholder="Artist, track or podcast"
-                  onChange={() => {}}
-                  value=""
+                  onChange={(e) => {
+                    localStorage.setItem("search", e.target.value);
+                    setSearchQuery(e.target.value);
+                    fetchData();
+                  }}
+                  value={searchQuery}
                 />
               </div>
             </div>
@@ -137,12 +180,14 @@ export default function Sidebar({
                     aria-expanded="false"
                     data-dropdown-toggle="dropdown-user"
                   >
-                    <span className="sr-only">Open user menu</span>
-                    <img
-                      className="w-12 h-12 rounded-full"
-                      src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                      alt="user photo"
-                    />
+                    <Link href={"/profile"}>
+                      <span className="sr-only">Open user menu</span>
+                      <Avatar
+                        alt="Yash Patel"
+                        src="/static/images/avatar/1.jpg"
+                        sx={{ width: 48, height: 48 }}
+                      />
+                    </Link>
                   </button>
                 </div>
                 <div
@@ -229,9 +274,17 @@ export default function Sidebar({
           </ul>
         </div>
         <div className="h-[1px] bg-[#8d8989] w-full mt-40"></div>
-        <Player />
+        {playSong && <Player />}
       </aside>
-      <div className="pt-[73px] ml-[256px]">{children}</div>
+      <div className="pt-[73px] ml-[256px]">
+        {isLoading ? (
+          <div className="flex justify-center bg-[#16151A] items-center h-screen">
+            <Loader />
+          </div>
+        ) : (
+          children
+        )}
+      </div>
     </div>
   );
 }

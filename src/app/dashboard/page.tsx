@@ -100,9 +100,10 @@ const Events = [
 ];
 
 function Page({}: Props) {
-  const { albums, trending } = useAudio();
+  const { albums, isLoading } = useAudio();
 
-  console.log(albums, "albums");
+  // console.log(albums, "albums");
+  console.log(isLoading);
   return (
     <DashBoard>
       <div className="p-10 bg-[#16151A] text-white">
@@ -125,11 +126,11 @@ function Page({}: Props) {
           </div>
           <div className="mt-10 flex flex-wrap gap-8">
             {albums?.map((x, i) => (
-              <Link href={`/dashboard/${x.id}`}>
+              <Link href={`/dashboard/${x?.id}`}>
                 <NewReleaseCard
                   index={i + 1}
-                  title={x.name}
-                  img={x?.image[2].link}
+                  title={x?.name}
+                  img={x?.images[0]?.url}
                 />
               </Link>
             ))}
