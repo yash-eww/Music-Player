@@ -4,8 +4,6 @@ import React from "react";
 
 type Props = {};
 
-function Page({}: Props) {
+export default function Page({}: Props) {
   return <DashBoard>Artist</DashBoard>;
 }
-
-export default Page;

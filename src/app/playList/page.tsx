@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 
 type Props = {};
 
-function Page({}: Props) {
+export default function Page({}: Props) {
   const { setIsLoading, setSong, song, setPlaySong } = useAudio();
   const { setDisplayPlayList, displayPlayList } = usePlayList();
   const [open, setOpen] = React.useState(false);
@@ -112,4 +112,4 @@ function Page({}: Props) {
   );
 }
 
-export default Page;
+// export default Page;

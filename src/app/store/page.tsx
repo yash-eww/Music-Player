@@ -3,8 +3,8 @@ import DashBoard from "@/layout/dashboard";
 import React from "react";
 type Props = {};
 
-function Page({}: Props) {
+export default function Page({}: Props) {
   return <DashBoard>store</DashBoard>;
 }
 
-export default Page;
+// export default Page;

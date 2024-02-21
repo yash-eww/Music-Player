@@ -99,7 +99,7 @@ const Events = [
   },
 ];
 
-function Page({}: Props) {
+export default function Page({}: Props) {
   const { albums, isLoading } = useAudio();
 
   // console.log(albums, "albums");
@@ -186,5 +186,3 @@ function Page({}: Props) {
     </DashBoard>
   );
 }
-
-export default Page;

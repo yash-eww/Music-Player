@@ -29,14 +29,15 @@ export default function DashBoard({
         );
         const data = await res.json();
         // console.log(res.json(), "resres");
-        // const { items } = await res.json();
-        const getAlbum = localStorage.getItem("album");
-        if (getAlbum) {
-          setAlbums(JSON.parse(getAlbum));
-        } else {
-          setAlbums(data.items);
+        if (typeof localStorage !== "undefined") {
+          // const { items } = await res.json();
+          const getAlbum = localStorage.getItem("album");
+          if (getAlbum) {
+            setAlbums(JSON.parse(getAlbum));
+          } else {
+            setAlbums(data.items);
+          }
         }
-        console.log(JSON.parse(getAlbum ?? ""), "getAlbum");
         // setTrending(data.trending.albums);
         setIsLoading(false);
       } catch (error) {

@@ -81,8 +81,12 @@ export default function Sidebar({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const getSearch = localStorage.getItem("search");
-  const [searchQuery, setSearchQuery] = useState(getSearch ?? "");
+  const [get, setget] = useState<any>();
+  if (typeof localStorage !== "undefined") {
+    const getSearch = localStorage.getItem("search");
+    setget(getSearch);
+  }
+  const [searchQuery, setSearchQuery] = useState(get ?? "");
   const { setAlbums, playSong, isLoading } = useAudio();
   const fetchData = async () => {
     try {
@@ -101,7 +105,9 @@ export default function Sidebar({
       // const { items } = await res.json();
       // console.log(data, "data");
       setAlbums(data.albums.items);
-      localStorage.setItem("album", JSON.stringify(data.albums.items));
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("album", JSON.stringify(data.albums.items));
+      }
       // console.log(data, "items");
       // setTrending(data.trending.albums);
       // setLoading(false);
@@ -165,7 +171,9 @@ export default function Sidebar({
                 <SearchInput
                   placeholder="Artist, track or podcast"
                   onChange={(e) => {
-                    localStorage.setItem("search", e.target.value);
+                    if (typeof localStorage !== "undefined") {
+                      localStorage.setItem("search", e.target.value);
+                    }
                     setSearchQuery(e.target.value);
                     fetchData();
                   }}

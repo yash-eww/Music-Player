@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 
 type Props = {};
 
-const Profile = (props: Props) => {
+export default function Page(props: Props) {
   const { user, setUser } = useAudio();
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +42,6 @@ const Profile = (props: Props) => {
       </div>
     </DashBoard>
   );
-};
+}
 
-export default Profile;
+// export default Profile;
