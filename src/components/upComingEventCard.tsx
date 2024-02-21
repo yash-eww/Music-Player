@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 type Props = {
@@ -13,11 +14,12 @@ const UpComingEventCard = ({ img, button, date, time, title, desc }: Props) => {
   return (
     <div className="h-full w-full">
       <div className="relative rounded-2xl hover:opacity-80 duration-1000">
-        <img
+        <Image
           src={img}
           alt={img}
           className="max-w-[551px] min-h-[300px] md:w-full h-full rounded-2xl"
         />
+
         <div className="absolute top-0 mx-10 pt-5">
           {button && (
             <button className="bg-[#222227] px-4 py-2 rounded-lg text-[15px] flex gap-2 items-center hover:bg-[#25A56A] duration-700">

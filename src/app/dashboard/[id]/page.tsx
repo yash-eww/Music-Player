@@ -161,7 +161,10 @@ const Page = ({ params }: { params: { id: string } }) => {
               <div className="flex flex-col w-full overflow-y-scroll">
                 {song &&
                   song[0]?.tracks?.items?.map((x: any, i: number) => (
-                    <div className="flex p-5 justify-between w-full h-fit">
+                    <div
+                      key={Math.random()}
+                      className="flex p-5 justify-between w-full h-fit"
+                    >
                       <div
                         className="flex gap-2 cursor-pointer"
                         onClick={() => {
@@ -189,7 +192,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                           </h1>
                           <div className="flex">
                             {x.artists.map((art: any, i: number) => (
-                              <div className="flex">
+                              <div className="flex" key={Math.random()}>
                                 <p className="text-[#bdbac2]">{art?.name}</p>
                                 {x?.artists[i - 1] ? (
                                   ""

@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useAudio } from "@/store/music";
 import { Avatar } from "@mui/material";
 import Loader from "./Loader/loader";
+import Image from "next/image";
 
 const sideBar = [
   {
@@ -142,7 +143,8 @@ export default function Sidebar({
                   href="https://flowbite.com"
                   className="flex ms-2 md:me-24 text-white items-center"
                 >
-                  <img src="./images/logo.png" alt="" className="h-10" />
+                  <Image src="./images/logo.png" alt="" className="h-10" />
+
                   <h1 className="text-[25px] font-semibold ">WavePlay</h1>
                   {/* <img
                   src="https://flowbite.com/docs/images/logo.svg"
@@ -261,7 +263,7 @@ export default function Sidebar({
         <div className="h-fit px-10 pb-4 pt-10 overflow-y-auto bg-[#16151A] ">
           <ul className="space-y-2 font-medium flex flex-col gap-2">
             {sideBar.map((x) => (
-              <li>
+              <li key={Math.random()}>
                 <Link
                   href={x.url}
                   className="flex items-center p-2 text-gray-900 rounded-lg"

@@ -12,8 +12,8 @@ type Props = {};
 const Player = (props: Props) => {
   const { song, playSong } = useAudio();
   const [count, setCount] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const audioElement = useRef(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const audioElement = useRef<any>(null);
 
   useEffect(() => {
     if (audioElement.current) {

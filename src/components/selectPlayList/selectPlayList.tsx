@@ -8,6 +8,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { MyPlayList } from "@/types";
 import "./playListCard.css";
+import Image from "next/image";
 
 export default function SelectPlayList({
   open,
@@ -29,6 +30,7 @@ export default function SelectPlayList({
           <div className="main">
             {List.map((x) => (
               <div
+                key={Math.random()}
                 className="loader"
                 onClick={() => {
                   handleSong(x.id);
@@ -40,7 +42,11 @@ export default function SelectPlayList({
                   <p className="artist">Jim Corce</p>
                 </div>
                 {x?.images[0]?.url ? (
-                  <img src={x?.images[0]?.url} alt="" className=" albumcover" />
+                  <Image
+                    src={x?.images[0]?.url}
+                    alt=""
+                    className=" albumcover"
+                  />
                 ) : (
                   <div className="albumcover"></div>
                 )}

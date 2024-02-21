@@ -126,7 +126,7 @@ function Page({}: Props) {
           </div>
           <div className="mt-10 flex flex-wrap gap-8">
             {albums?.map((x, i) => (
-              <Link href={`/dashboard/${x?.id}`}>
+              <Link href={`/dashboard/${x?.id}`} key={Math.random()}>
                 <NewReleaseCard
                   index={i + 1}
                   title={x?.name}
@@ -153,6 +153,7 @@ function Page({}: Props) {
           <div className="mt-10 flex sm:flex-col gap-5 xl:flex-row  xl:gap-5">
             {Events.map((x) => (
               <UpComingEventCard
+                key={Math.random()}
                 img={x.img}
                 button={x.button}
                 date={x.date}

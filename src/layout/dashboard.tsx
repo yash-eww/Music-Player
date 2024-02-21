@@ -36,7 +36,7 @@ export default function DashBoard({
         } else {
           setAlbums(data.items);
         }
-        console.log(JSON.parse(getAlbum), "getAlbum");
+        console.log(JSON.parse(getAlbum ?? ""), "getAlbum");
         // setTrending(data.trending.albums);
         setIsLoading(false);
       } catch (error) {
@@ -58,7 +58,7 @@ export default function DashBoard({
         draggable
         pauseOnHover
       />
-      <Sidebar children={children} />
+      <Sidebar>{children}</Sidebar>
       {/* {children} */}
     </div>
   );

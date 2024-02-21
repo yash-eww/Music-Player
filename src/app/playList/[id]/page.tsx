@@ -12,6 +12,7 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import axios from "axios";
 import UseToast from "@/hook/useToast";
 import RemoveModal from "@/components/modal/RemoveModal";
+import Image from "next/image";
 
 type Props = {};
 
@@ -20,36 +21,40 @@ const Page = ({ params }: { params: { id: string } }) => {
   const [cover, setCover] = useState();
   const [open, setOpen] = React.useState(false);
 
-  const [base64Image, setBase64Image] = useState("");
+  const [base64Image, setBase64Image] = useState<ArrayBuffer | string | null>(
+    ""
+  );
 
-  const handleFileInputChange = (e) => {
+  const handleFileInputChange = (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setBase64Image(reader.result);
+      if (reader) {
+        setBase64Image(reader?.result);
+      }
     };
     reader.readAsDataURL(file);
   };
 
-  const uploadImage = async () => {
-    try {
-      const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
-      const response = await axios({
-        method: "PUT",
-        url: `https://api.spotify.com/v1/playlists/${params.id}/images`,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "image/jpeg", // or 'image/png' depending on your image format
-        },
-        data: base64Image, // remove the 'data:image/jpeg;base64,' prefix
-      });
-      console.log("Image uploaded successfully:", response.data);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
-  };
+  // const uploadImage = async () => {
+  //   try {
+  //     const accessToken = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+  //     const response = await axios({
+  //       method: "PUT",
+  //       url: `https://api.spotify.com/v1/playlists/${params.id}/images`,
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //         "Content-Type": "image/jpeg", // or 'image/png' depending on your image format
+  //       },
+  //       data: base64Image?.split(",")[1], // remove the 'data:image/jpeg;base64,' prefix
+  //     });
+  //     console.log("Image uploaded successfully:", response.data);
+  //   } catch (error) {
+  //     console.error("Error uploading image:", error);
+  //   }
+  // };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -155,21 +160,9 @@ const Page = ({ params }: { params: { id: string } }) => {
             </h1>
             <div className="border border-1 border-[#515053] mt-10 rounded-2xl flex h-[370px]">
               <div className="p-5 max-w-[300px]">
-                <div>
-                  <input type="file" onChange={handleFileInputChange} />
-                  {base64Image && (
-                    <div>
-                      <h2>Uploaded Image:</h2>
-                      <img
-                        src={base64Image}
-                        alt="Uploaded"
-                        style={{ maxWidth: "100%" }}
-                      />
-                    </div>
-                  )}
-                  <button onClick={uploadImage}>Upload Image</button>
-                </div>
-                {cover && <img src={cover} alt="as" className=" rounded-2xl" />}
+                {cover && (
+                  <Image src={cover} alt="assa" className=" rounded-2xl" />
+                )}
                 <div className="flex justify-center mt-3">
                   <button className="bg-[#25A56A] px-10 py-3 w-full rounded-2xl">
                     BUY ALBUM - $20
@@ -178,8 +171,11 @@ const Page = ({ params }: { params: { id: string } }) => {
               </div>
               <div className="flex flex-col w-full overflow-y-scroll">
                 {song &&
-                  song.tracks.items.map((x: any, i: number) => (
-                    <div className="flex p-5 justify-between w-full h-fit">
+                  song?.tracks?.items?.map((x: any, i: number) => (
+                    <div
+                      className="flex p-5 justify-between w-full h-fit"
+                      key={Math.random()}
+                    >
                       <div
                         className="flex gap-2 cursor-pointer"
                         onClick={() => {

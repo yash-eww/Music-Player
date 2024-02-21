@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 type Props = {
@@ -12,11 +13,12 @@ const NewReleaseCard = ({ img, title, desc, index }: Props) => {
     index < 13 && (
       <div className="cursor-pointer">
         <div className="relative rounded-2xl max-w-[230px] overflow-hidden">
-          <img
-            src={img}
+          <Image
+            src={img ?? ""}
             alt={`cover${index}`}
             className="rounded-2xl md:w-full duration-1000 hover:transform hover:scale-150 transform-origin-center"
           />
+          <img />
           {/* <div className="absolute flex justify-center items-center top-0 rounded-2xl h-full bg-black opacity-0 duration-300 hover:opacity-55 max-w-[230px] md:w-full">
           <div className="bg-black w-10 h-10">
             <svg

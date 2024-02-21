@@ -7,6 +7,7 @@ import { Navigation, Pagination, Scrollbar } from "swiper/modules";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Props } from "next/script";
+import Image from "next/image";
 
 const sliderImages = [
   {
@@ -54,9 +55,9 @@ const Carousel = (prop: Props) => {
         className="mySwiper rounded-2xl relative "
       >
         {sliderImages.map((image: any, i: number) => (
-          <SwiperSlide className="relative">
+          <SwiperSlide className="relative" key={Math.random()}>
             <div className="max-h-[460px]  ">
-              <img
+              <Image
                 src={image.img}
                 alt="image"
                 className="-translate-y-[300px]"

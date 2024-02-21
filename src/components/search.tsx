@@ -3,7 +3,7 @@ import React from "react";
 import SearchIcon from "@mui/icons-material/Search";
 
 type Props = {
-  onChange?: (e) => void;
+  onChange?: (e: any) => void;
   value?: string;
   placeholder: string;
 };
